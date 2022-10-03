@@ -17,8 +17,11 @@ url_base = os.getenv('USERS_BASE_URL')
 
 @router.post("/users/signup", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 def user_signup(user: UserSignUp):
+    print("hola")
     url = url_base + "/users/signup"
-    return requests.post(url=url, json=user).json()
+    response = requests.post(url=url, json=dict(user)).json()
+    print(response)
+    return response
 
 
 @router.get("/users/", response_model=List[UserSchema], status_code=status.HTTP_200_OK)
@@ -41,7 +44,7 @@ def user_add_pred_address(user: PassengerAddress, useremail: EmailStr = Depends(
         "street_name": user.street_name,
         "street_number": user.street_number
     }
-    return requests.post(url=url, json=json.dump(new_user)).json()
+    return requests.post(url=url, json=new_user).json()
 
 
 # @router.post("/drivers/vehicle", status_code=status.HTTP_200_OK)
