@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.schemas.auth_schemas import *
 from jose import JWTError, jwt
@@ -8,10 +8,9 @@ from datetime import datetime, timedelta
 from typing import Union
 
 from starlette import status
-from app.schemas.users_schemas import *
 
 router = APIRouter()
-url_base = ""
+url_base = "http://127.0.0.1:3001/"
 
 
 SECRET_KEY = "9830e8615a20b5b145edd6cbf11ca1943cb15dac7ff72be7fd0f046d133b2740"
@@ -23,12 +22,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 def user_signin(form_data: OAuth2PasswordRequestForm = Depends()):
     url = url_base + "users/signin"
     try:
-        user: UserSignIn = requests.post(url=url, json={"email": form_data.username, "password": form_data.password})
+        user: UserSignIn = requests.post(url=url, json={"email": form_data.username,
+                                                        "password": form_data.password}).json()
     except Exception as e:
         raise HTTPException(status_code=403, detail="Failed to sign in")
 

@@ -19,13 +19,13 @@ class User(BaseModel):
 
 
 class PassengerAddress(BaseModel):
-    email: EmailStr
+    token: str
     street_name: str
     street_number: int
 
 
 class DriverVehicle(BaseModel):
-    email: EmailStr
+    token: str
     licence_plate: str
     model: str
 
