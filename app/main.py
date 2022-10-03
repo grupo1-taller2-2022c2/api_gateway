@@ -20,5 +20,5 @@ async def root():
     return {"message": "Welcome to API Gateway"}
 
 
-app.include_router(users_routes.router, tags=["Users BE"])
+# app.include_router(users_routes.router, tags=["Users BE"])
 app.include_router(authorization_routes.router, tags=["Auth"])
