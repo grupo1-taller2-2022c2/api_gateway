@@ -14,6 +14,11 @@ from starlette import status
 router = APIRouter()
 url_base = os.getenv('USERS_BASE_URL')
 
+SECRET_KEY = "9830e8615a20b5b145edd6cbf11ca1943cb15dac7ff72be7fd0f046d133b2740"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -54,52 +59,31 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         user: UserSchema = requests.post(url=url, json={"email": form_data.username,
                                                         "password": form_data.password}).json()
 
-        print(user)
     except Exception as e:
         raise HTTPException(status_code=403, detail="Failed to sign in")
-    # Habilita al usuario en la base de datos
-    return {"access_token": user['email'], "token_type": "bearer"}
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user['email']}, expires_delta=access_token_expires
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.get("/me")
 def read_users_me(current_user: UserSchema = Depends(get_current_active_user)):
     return current_user
 
-# SECRET_KEY = "9830e8615a20b5b145edd6cbf11ca1943cb15dac7ff72be7fd0f046d133b2740"
-# ALGORITHM = "HS256"
-# ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-# @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
-# def user_signin(form_data: OAuth2PasswordRequestForm = Depends()):
-#     url = url_base + "users/signin"
-#     # try:
-#     user: UserSignIn = requests.post(url=url, json={"email": form_data.username,
-#                                                     "password": form_data.password}).json()
-#     # except Exception as e:
-#     #     raise HTTPException(status_code=403, detail="Failed to sign in")
-
-#     # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#     # access_token = create_access_token(
-#     #     data={"sub": user.user_id}, expires_delta=access_token_expires
-#     # )
-#     # return {"access_token": access_token, "token_type": "bearer"}
-#     return {user: user}
-
-
-# def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
-#     to_encode = data.copy()
-#     if expires_delta:
-#         expire = datetime.utcnow() + expires_delta
-#     else:
-#         expire = datetime.utcnow() + timedelta(minutes=15)
-#     to_encode.update({"exp": expire})
-#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-#     return encoded_jwt
+def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 
 # async def get_current_user_id(token: str = Depends(oauth2_scheme)):
