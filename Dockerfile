@@ -12,4 +12,4 @@ RUN apt-get -y install \
   gcc \
   && apt-get clean
 
-RUN pip install --no-cache-dir fastapi uvicorn pydantic[email] python-multipart
+RUN pip install --no-cache-dir fastapi uvicorn pydantic[email] python-multipart requests python-jose passlib
