@@ -22,31 +22,33 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def fake_decode_token(username):
-    url = url_base + '/users/' + username
+# def fake_decode_token(username):
+# url = url_base + '/users/' + username
+# try:
+#     user: UserSchema = requests.get(url=url).json()
+# except Exception as e:
+#     raise HTTPException(status_code=403, detail="Failed to get user")
+# return user
+
+def get_current_username(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        user: UserSchema = requests.get(url=url).json()
-        print(user)
-    except Exception as e:
-        raise HTTPException(status_code=403, detail="Failed to get user")
-    return user
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        useremail: EmailStr = payload.get("sub")
+        if useremail is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    return useremail
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
-
-    user = fake_decode_token(token)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
-
-
-def get_current_active_user(current_user: UserSchema = Depends(get_current_user)):
-    if False:  # current_user.disabled:  # TODO: campo disabled todavia no existe
-        raise HTTPException(status_code=400, detail="Inactive user")
+def get_current_active_user(current_user: UserSchema = Depends(get_current_username)):
+    if False:  # current_user.blocked:  # TODO: ver como resolver esto
+        raise HTTPException(status_code=400, detail="Blocked user by admins")
     return current_user
 
 # form_data.username is the email of the user!
@@ -71,7 +73,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @router.get("/me")
-def read_users_me(current_user: UserSchema = Depends(get_current_active_user)):
+def read_users_me(current_user: str = Depends(get_current_active_user)):
     return current_user
 
 
@@ -84,19 +86,3 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-
-# async def get_current_user_id(token: str = Depends(oauth2_scheme)):
-#     credentials_exception = HTTPException(
-#         status_code=status.HTTP_401_UNAUTHORIZED,
-#         detail="Could not validate credentials",
-#         headers={"WWW-Authenticate": "Bearer"},
-#     )
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         user_id: int = payload.get("sub")
-#         if user_id is None:
-#             raise credentials_exception
-#     except JWTError:
-#         raise credentials_exception
-#     return user_id
