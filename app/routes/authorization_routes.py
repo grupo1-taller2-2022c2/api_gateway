@@ -30,7 +30,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 #     raise HTTPException(status_code=403, detail="Failed to get user")
 # return user
 
-def get_current_username(token: str = Depends(oauth2_scheme)):
+def get_current_useremail(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -46,7 +46,7 @@ def get_current_username(token: str = Depends(oauth2_scheme)):
     return useremail
 
 
-def get_current_active_user(current_user: UserSchema = Depends(get_current_username)):
+def get_current_active_user(current_user: UserSchema = Depends(get_current_useremail)):
     if False:  # current_user.blocked:  # TODO: ver como resolver esto
         raise HTTPException(status_code=400, detail="Blocked user by admins")
     return current_user
