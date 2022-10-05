@@ -8,7 +8,7 @@ class UserSignUp(BaseModel):
     surname: str
 
 
-class User(BaseModel):
+class UserSchema(BaseModel):
     email: EmailStr
     password: str
     username: str
@@ -28,4 +28,3 @@ class DriverVehicle(BaseModel):
     token: str
     licence_plate: str
     model: str
-
