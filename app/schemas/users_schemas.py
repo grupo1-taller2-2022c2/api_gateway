@@ -10,7 +10,6 @@ class UserSignUp(BaseModel):
 
 class UserSchema(BaseModel):
     email: EmailStr
-    password: str
     username: str
     surname: str
 
@@ -19,12 +18,10 @@ class UserSchema(BaseModel):
 
 
 class PassengerAddress(BaseModel):
-    token: str
     street_name: str
     street_number: int
 
 
 class DriverVehicle(BaseModel):
-    token: str
     licence_plate: str
     model: str

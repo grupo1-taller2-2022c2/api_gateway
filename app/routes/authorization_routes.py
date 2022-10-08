@@ -1,4 +1,7 @@
 import os
+
+from pydantic import EmailStr
+
 from app.schemas.users_schemas import UserSchema
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -57,13 +60,20 @@ def get_current_active_user(current_user: UserSchema = Depends(get_current_usere
 @router.post("/token",  status_code=status.HTTP_200_OK)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     url = url_base + "/users/grantaccess"
-    try:
+    """try:
         user: UserSchema = requests.post(url=url, json={"email": form_data.username,
                                                         "password": form_data.password}).json()
 
     except Exception as e:
-        raise HTTPException(status_code=403, detail="Failed to sign in")
+        raise HTTPException(status_code=403, detail="Failed to sign in")"""
 
+    response = requests.post(url=url, json={"email": form_data.username,
+                                            "password": form_data.password})
+    if not response.ok:
+        raise HTTPException(status_code=response.status_code,
+                            detail=response.json()['detail'])
+
+    user: UserSchema = response.json()
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user['email']}, expires_delta=access_token_expires
