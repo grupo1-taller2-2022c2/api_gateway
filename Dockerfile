@@ -1,15 +1,7 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8-slim
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 COPY ./app /app/app
 
-RUN apt-get -y update
+COPY ./requirements.txt /app/requirements.txt
 
-RUN apt-get -y install \
-  dos2unix \
-  libpq-dev \
-  libmariadb-dev-compat \
-  libmariadb-dev \
-  gcc \
-  && apt-get clean
-
-RUN pip install --no-cache-dir fastapi uvicorn pydantic[email] python-multipart requests python-jose passlib
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
