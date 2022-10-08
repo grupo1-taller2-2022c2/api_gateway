@@ -60,12 +60,6 @@ def get_current_active_user(current_user: UserSchema = Depends(get_current_usere
 @router.post("/token",  status_code=status.HTTP_200_OK)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     url = url_base + "/users/grantaccess"
-    """try:
-        user: UserSchema = requests.post(url=url, json={"email": form_data.username,
-                                                        "password": form_data.password}).json()
-
-    except Exception as e:
-        raise HTTPException(status_code=403, detail="Failed to sign in")"""
 
     response = requests.post(url=url, json={"email": form_data.username,
                                             "password": form_data.password})
@@ -80,11 +74,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-@router.get("/me")
-def read_users_me(current_user: str = Depends(get_current_active_user)):
-    return current_user
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):

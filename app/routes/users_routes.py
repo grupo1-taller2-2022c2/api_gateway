@@ -15,6 +15,8 @@ router = APIRouter()
 url_base = os.getenv('USERS_BASE_URL')
 
 
+###############################################################################################
+# USERS
 @router.post("/users/signup", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 def user_signup(user: UserSignUp):
     url = url_base + "/users/signup"
@@ -35,7 +37,9 @@ def get_users():
                         detail=response.json()['detail'])
 
 
-@router.post("/passengers/address", status_code=status.HTTP_200_OK)
+###############################################################################################
+# COMPLETE DATA
+@router.post("/passengers/address", status_code=status.HTTP_201_CREATED)
 def user_add_pred_address(user: PassengerAddress, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/passengers/address"
     new_user = {
@@ -50,7 +54,7 @@ def user_add_pred_address(user: PassengerAddress, useremail: EmailStr = Depends(
                         detail=response.json()['detail'])
 
 
-@router.post("/drivers/vehicle", status_code=status.HTTP_200_OK)
+@router.post("/drivers/vehicle", status_code=status.HTTP_201_CREATED)
 def add_vehicle(vehicle: DriverVehicle, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/drivers/vehicle"
     new_vehicle = {
@@ -59,6 +63,50 @@ def add_vehicle(vehicle: DriverVehicle, useremail: EmailStr = Depends(get_curren
         "model": vehicle.model
     }
     response = requests.post(url=url, json=new_vehicle)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+###############################################################################################
+# PASSENGERS PROFILE
+@router.get("/passengers/{useremail}", response_model=PassengerProfile, status_code=status.HTTP_200_OK)
+def user_profile(useremail: str):
+    url = url_base + "/passengers/" + useremail
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/passengers/me/", response_model=PassengerSelfProfile, status_code=status.HTTP_200_OK)
+def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/passengers/me/" + useremail
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+###############################################################################################
+# DRIVERS PROFILE
+@router.get("/drivers/{useremail}", response_model=DriverProfile, status_code=status.HTTP_200_OK)
+def user_profile(useremail: str):
+    url = url_base + "/drivers/" + useremail
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/drivers/me/", response_model=DriverSelfProfile, status_code=status.HTTP_200_OK)
+def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/me/" + useremail
+    response = requests.get(url=url)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
