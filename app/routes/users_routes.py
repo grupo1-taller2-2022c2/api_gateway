@@ -30,7 +30,7 @@ def user_signup(user: UserSignUp):
 @router.get("/users/", response_model=List[UserSchema], status_code=status.HTTP_200_OK)
 def get_users():
     url = url_base + "/users/"
-    response = requests.post(url=url)
+    response = requests.get(url=url)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
