@@ -25,14 +25,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-# def fake_decode_token(username):
-# url = url_base + '/users/' + username
-# try:
-#     user: UserSchema = requests.get(url=url).json()
-# except Exception as e:
-#     raise HTTPException(status_code=403, detail="Failed to get user")
-# return user
-
 def get_current_useremail(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -46,13 +38,18 @@ def get_current_useremail(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
+    if user_is_blocked(useremail):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User blocked by admin",
+        )
     return useremail
 
 
-def get_current_active_user(current_user: UserSchema = Depends(get_current_useremail)):
-    if False:  # current_user.blocked:  # TODO: ver como resolver esto
-        raise HTTPException(status_code=400, detail="Blocked user by admins")
-    return current_user
+def user_is_blocked(user_email: EmailStr):
+    url = url_base + "/users/blocked/" + user_email
+    response = requests.get(url=url).json()
+    return response['is_blocked']
 
 # form_data.username is the email of the user!
 
