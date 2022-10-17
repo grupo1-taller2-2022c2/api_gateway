@@ -91,6 +91,16 @@ def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
                         detail=response.json()['detail'])
 
 
+@router.patch("/passengers/update/", status_code=status.HTTP_200_OK)
+def update_passenger_profile(new_profile: PassengerProfile, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/passengers/update/" + useremail
+    response = requests.patch(url=url, json=dict(new_profile))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
 ###############################################################################################
 # DRIVERS PROFILE
 @router.get("/drivers/{useremail}", response_model=DriverProfile, status_code=status.HTTP_200_OK)
@@ -113,6 +123,18 @@ def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
                         detail=response.json()['detail'])
 
 
+@router.patch("/drivers/update/", status_code=status.HTTP_200_OK)
+def update_passenger_profile(new_profile: DriverProfile, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/update/" + useremail
+    response = requests.patch(url=url, json=dict(new_profile))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+###############################################################################################
+# DRIVERS GET AVAILABLES
 @router.get("/drivers/all_available/", response_model=List[DriverAvailability], status_code=status.HTTP_200_OK)
 def get_available_drivers():
     url = url_base + "/drivers/all_available/"
