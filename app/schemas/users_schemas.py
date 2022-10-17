@@ -58,3 +58,12 @@ class DriverSelfProfile(BaseModel):
     ratings: float
     licence_plate: str
     model: str
+
+
+class DriverAvailability(BaseModel):
+    email: str
+    username: str
+    surname: str
+    ratings: float
+    licence_plate: str
+    model: str

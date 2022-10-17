@@ -111,3 +111,13 @@ def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
         return response.json()
     raise HTTPException(status_code=response.status_code,
                         detail=response.json()['detail'])
+
+
+@router.get("/drivers/all_available/", response_model=List[DriverAvailability], status_code=status.HTTP_200_OK)
+def get_available_drivers():
+    url = url_base + "/drivers/all_available/"
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
