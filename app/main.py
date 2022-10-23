@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import users_routes, authorization_routes
+from app.routes import users_routes, authorization_routes, trips_routes
 
 app = FastAPI()
 
@@ -22,3 +22,4 @@ async def root():
 
 app.include_router(users_routes.router, tags=["Users BE"])
 app.include_router(authorization_routes.router, tags=["Auth"])
+app.include_router(trips_routes.router, tags=["Trips"])
