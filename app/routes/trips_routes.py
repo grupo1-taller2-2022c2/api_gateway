@@ -54,10 +54,11 @@ def calculate_cost(src_address: str, src_number: int, dst_address: str, dst_numb
 
 
 @router.get("/trips/history/", status_code=status.HTTP_200_OK)
-def get_travel_history(useremail: EmailStr = Depends(get_current_useremail)):
-    """Get the last five travel histories from the passenger"""
+def get_travel_history(user_type: Union[str, None] = None, useremail: EmailStr = Depends(get_current_useremail)):
+    """Get the last five travel histories from the passenger.
+    If the travel history required is for the driver, request with param 'user_type': 'driver'"""
     url = url_base + "/trips/history/" + useremail
-    response = requests.get(url=url)
+    response = requests.get(url=url, params={"user_type": user_type})
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
