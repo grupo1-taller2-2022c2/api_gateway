@@ -103,8 +103,8 @@ def update_passenger_profile(new_profile: PassengerProfile, useremail: EmailStr 
 
 @router.patch("/passengers/picture", status_code=status.HTTP_200_OK)
 def update_passenger_picture(photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
-    url = url_base + "/passengers/picture" + useremail
-    response = requests.patch(url=url, params={"photo": photo})
+    url = url_base + "/passengers/picture/" + useremail
+    response = requests.patch(url=url, data=photo)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
@@ -137,6 +137,16 @@ def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
 def update_passenger_profile(new_profile: DriverProfile, photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/drivers/" + useremail
     response = requests.patch(url=url, json=dict(new_profile))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.patch("/drivers/picture", status_code=status.HTTP_200_OK)
+def update_passenger_picture(photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/picture/" + useremail
+    response = requests.patch(url=url, data=photo)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
