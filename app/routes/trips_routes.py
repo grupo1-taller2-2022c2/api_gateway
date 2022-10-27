@@ -2,7 +2,7 @@ import json
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List
+from typing import List, Union
 import requests
 from fastapi.responses import RedirectResponse
 from starlette import status
@@ -31,6 +31,18 @@ def save_last_location(driver: DriverLocationSchema, useremail: EmailStr = Depen
 def look_for_driver(src_address: str, src_number: int, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/drivers/driver_lookup/"
     response = requests.get(url=url, params={"src_address": src_address, "src_number": src_number})
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/trips/cost/", status_code=status.HTTP_200_OK)
+def calculate_cost(src_address: str, src_number: int, duration: float, distance: float,
+                   trip_type: Union[str, None] = None, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/trips/cost/"
+    response = requests.get(url=url, params={"src_address": src_address, "src_number": src_number, "duration": duration,
+                                             "distance": distance, "trip_type": trip_type, "passenger_email": useremail})
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
