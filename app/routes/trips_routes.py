@@ -27,7 +27,7 @@ def save_last_location(driver: DriverLocationSchema, useremail: EmailStr = Depen
                         detail=response.json()['detail'])
 
 
-@router.get("/drivers/driver_lookup/", status_code=status.HTTP_200_OK)
+@router.get("/trips/driver_lookup/", status_code=status.HTTP_200_OK)
 def look_for_driver(trip_id: int, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/drivers/driver_lookup/"
     response = requests.get(url=url, params={"trip_id": trip_id})
