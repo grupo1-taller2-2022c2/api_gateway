@@ -134,7 +134,7 @@ def user_profile(useremail: EmailStr = Depends(get_current_useremail)):
 
 
 @router.patch("/drivers/", status_code=status.HTTP_200_OK)
-def update_passenger_profile(new_profile: DriverProfile, photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
+def update_passenger_profile(new_profile: DriverProfile, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/drivers/" + useremail
     response = requests.patch(url=url, json=dict(new_profile))
     if response.ok:
