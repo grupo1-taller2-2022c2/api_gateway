@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 from starlette import status
 
 from app.routes.authorization_routes import get_current_useremail
-from app.schemas.trips_schemas import DriverLocationSchema, TripState
+from app.schemas.trips_schemas import DriverLocationSchema, TripState, TripCreate
 from app.schemas.users_schemas import *
 
 router = APIRouter()
@@ -28,11 +28,19 @@ def save_last_location(driver: DriverLocationSchema, useremail: EmailStr = Depen
                         detail=response.json()['detail'])
 
 
-@router.get("/trips/driver_lookup/", status_code=status.HTTP_200_OK)
-def look_for_driver(trip_id: int, useremail: EmailStr = Depends(get_current_useremail)):
-    """Look for driver once the passenger accepts the price"""
-    url = url_base + "/drivers/driver_lookup/"
-    response = requests.get(url=url, params={"trip_id": trip_id})
+@router.post("/trips/", status_code=status.HTTP_201_CREATED)
+def create_trip_and_driver_lookup(trip: TripCreate, useremail: EmailStr = Depends(get_current_useremail)):
+    """Look for driver once the passenger creates a trip"""
+    url = url_base + "/trips/"
+    body = {"src_address": trip.src_address,
+            "src_number": trip.src_number,
+            "dst_address": trip.dst_address,
+            "dst_number": trip.dst_number,
+            "passenger_email": useremail,
+            "duration": trip.duration,
+            "distance": trip.distance,
+            "trip_type": trip.trip_type}
+    response = requests.post(url=url, json=body)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
@@ -40,13 +48,15 @@ def look_for_driver(trip_id: int, useremail: EmailStr = Depends(get_current_user
 
 
 @router.get("/trips/cost/", status_code=status.HTTP_200_OK)
-def calculate_cost(src_address: str, src_number: int, dst_address: str, dst_number: int,  duration: float, distance: float,
+def calculate_cost(src_address: str, src_number: int, dst_address: str, dst_number: int, duration: float,
+                   distance: float,
                    trip_type: Union[str, None] = None, useremail: EmailStr = Depends(get_current_useremail)):
     """Get the price of the trip"""
     url = url_base + "/trips/cost/"
     response = requests.get(url=url, params={"src_address": src_address, "src_number": src_number,
                                              "dst_address": dst_address, "dst_number": dst_number, "duration": duration,
-                                             "distance": distance, "trip_type": trip_type, "passenger_email": useremail})
+                                             "distance": distance, "trip_type": trip_type,
+                                             "passenger_email": useremail})
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
@@ -76,47 +86,11 @@ def get_trip(trip_id: int):
                         detail=response.json()['detail'])
 
 
-@router.patch("/trips/accept", status_code=status.HTTP_200_OK)
+@router.patch("/trips/", status_code=status.HTTP_200_OK)
 def accept_trip(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
-    """Accept the trip from the driver"""
-    url = url_base + "/trips/accept"
-    body = {"trip_id": trip.trip_id, "driver_email": useremail}
-    response = requests.patch(url=url, json=body)
-    if response.ok:
-        return response.json()
-    raise HTTPException(status_code=response.status_code,
-                        detail=response.json()['detail'])
-
-
-@router.patch("/trips/deny", status_code=status.HTTP_200_OK)
-def deny_trip(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
-    """Deny the trip from the driver"""
-    url = url_base + "/trips/deny"
-    body = {"trip_id": trip.trip_id, "driver_email": useremail}
-    response = requests.patch(url=url, json=body)
-    if response.ok:
-        return response.json()
-    raise HTTPException(status_code=response.status_code,
-                        detail=response.json()['detail'])
-
-
-@router.patch("/trips/initialize", status_code=status.HTTP_200_OK)
-def initialize_trip(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
-    """Initialize the trip from the driver once the driver is in the source address"""
-    url = url_base + "/trips/initialize"
-    body = {"trip_id": trip.trip_id, "driver_email": useremail}
-    response = requests.patch(url=url, json=body)
-    if response.ok:
-        return response.json()
-    raise HTTPException(status_code=response.status_code,
-                        detail=response.json()['detail'])
-
-
-@router.patch("/trips/finalize", status_code=status.HTTP_200_OK)
-def finalize_trip(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
-    """Finalize the trip from the driver once the driver is in the destination address"""
-    url = url_base + "/trips/finalize"
-    body = {"trip_id": trip.trip_id, "driver_email": useremail}
+    """Modify the trip state from the driver. The status can be: Accept, Deny, Initialize, Finalize"""
+    url = url_base + "/trips/"
+    body = {"trip_id": trip.trip_id, "driver_email": useremail, "status": trip.status}
     response = requests.patch(url=url, json=body)
     if response.ok:
         return response.json()
