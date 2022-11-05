@@ -87,7 +87,7 @@ def get_trip(trip_id: int):
 
 
 @router.patch("/trips/", status_code=status.HTTP_200_OK)
-def accept_trip(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
+def change_trip_state(trip: TripState, useremail: EmailStr = Depends(get_current_useremail)):
     """Modify the trip state from the driver. The status can be: Accept, Deny, Initialize, Finalize"""
     url = url_base + "/trips/"
     body = {"trip_id": trip.trip_id, "driver_email": useremail, "status": trip.status}
