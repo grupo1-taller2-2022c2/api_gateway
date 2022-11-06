@@ -60,6 +60,7 @@ class DriverSelfProfile(BaseModel):
     model: str
 
 
+#######################################################################
 class DriverAvailability(BaseModel):
     email: str
     username: str
@@ -67,3 +68,18 @@ class DriverAvailability(BaseModel):
     ratings: float
     licence_plate: str
     model: str
+
+
+#######################################################################
+class PassengerRating(BaseModel):
+    passenger_email: str
+    trip_id: int
+    ratings: int
+    message: str
+
+
+class DriverRating(BaseModel):
+    driver_email: str
+    trip_id: int
+    ratings: int
+    message: str

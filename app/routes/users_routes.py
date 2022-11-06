@@ -163,3 +163,73 @@ def get_available_drivers():
         return response.json()
     raise HTTPException(status_code=response.status_code,
                         detail=response.json()['detail'])
+
+
+###############################################################################################
+# PASSENGERS RATINGS
+@router.post("/passengers/ratings", status_code=status.HTTP_201_CREATED)
+def user_add_passenger_ratings(rating: PassengerRating, useremail: EmailStr = Depends(get_current_useremail)):
+    """Add a rating to the passenger"""
+    url = url_base + "/passengers/ratings"
+    response = requests.post(url=url, json=dict(rating))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/passengers/ratings/all/{passenger_email}", status_code=status.HTTP_200_OK)
+def user_get_passenger_ratings(passenger_email: str):
+    """Get all ratings about a passenger"""
+    url = url_base + "/passengers/ratings/all/" + passenger_email
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/passengers/ratings/{ratings_id}", status_code=status.HTTP_200_OK)
+def user_get_passenger_rating(ratings_id: int):
+    """Get one rating with rating_id"""
+    url = url_base + "/passengers/ratings/" + str(ratings_id)
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+###############################################################################################
+# DRIVERS RATINGS
+@router.post("/drivers/ratings", status_code=status.HTTP_201_CREATED)
+def user_add_driver_ratings(rating: DriverRating, useremail: EmailStr = Depends(get_current_useremail)):
+    """Add a rating to the driver"""
+    url = url_base + "/drivers/ratings"
+    response = requests.post(url=url, json=dict(rating))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/drivers/ratings/all/{driver_email}", status_code=status.HTTP_200_OK)
+def user_get_driver_ratings(driver_email: str):
+    """Get all ratings about a driver"""
+    url = url_base + "/drivers/ratings/all/" + driver_email
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/drivers/ratings/{ratings_id}", status_code=status.HTTP_200_OK)
+def user_get_driver_rating(ratings_id: int):
+    """Get one rating with rating_id"""
+    url = url_base + "/drivers/ratings/" + str(ratings_id)
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
