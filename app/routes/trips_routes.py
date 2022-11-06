@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 from starlette import status
 
 from app.routes.authorization_routes import get_current_useremail
-from app.schemas.trips_schemas import DriverLocationSchema, TripState, TripCreate
+from app.schemas.trips_schemas import DriverLocationSchema, TripState, TripCreate, LocationCreate
 from app.schemas.users_schemas import *
 
 router = APIRouter()
@@ -92,6 +92,37 @@ def change_trip_state(trip: TripState, useremail: EmailStr = Depends(get_current
     url = url_base + "/trips/"
     body = {"trip_id": trip.trip_id, "driver_email": useremail, "status": trip.status}
     response = requests.patch(url=url, json=body)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.post("/trips/saved_location/", status_code=status.HTTP_201_CREATED)
+def add_passenger_saved_location(location: LocationCreate, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/trips/saved_location/"
+    body = {"email": useremail, "location": location.location, "street_name": location.street_name, "street_num": location.street_num}
+    response = requests.post(url=url, json=body)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/trips/saved_location/{location_name}", status_code=status.HTTP_200_OK)
+def get_passenger_saved_location(location_name: str, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + f"/trips/saved_location/{useremail}/{location_name}"
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/trips/saved_location/", status_code=status.HTTP_200_OK)
+def get_all_passenger_saved_location(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + f"/trips/saved_location/{useremail}"
+    response = requests.get(url=url)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,

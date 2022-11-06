@@ -21,3 +21,9 @@ class TripCreate(BaseModel):
     duration: float
     distance: float
     trip_type: Union[str, None]
+
+
+class LocationCreate(BaseModel):
+    location: str
+    street_name: str
+    street_num: int
