@@ -10,7 +10,7 @@ class DriverLocationSchema(BaseModel):
 
 class TripState(BaseModel):
     trip_id: int
-    status: str
+    action: str
 
 
 class TripCreate(BaseModel):
