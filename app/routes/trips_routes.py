@@ -38,6 +38,16 @@ def gat_drivers_last_location(useremail: EmailStr = Depends(get_current_useremai
                         detail=response.json()['detail'])
 
 
+@router.get("/drivers/assigned_trip/", status_code=status.HTTP_200_OK)
+def gat_drivers_assigned_trip(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/assigned_trip/" + useremail
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
 @router.post("/trips/", status_code=status.HTTP_201_CREATED)
 def create_trip_and_driver_lookup(trip: TripCreate, useremail: EmailStr = Depends(get_current_useremail)):
     """Look for driver once the passenger creates a trip"""
