@@ -28,10 +28,21 @@ def save_last_location(driver: DriverLocationSchema, useremail: EmailStr = Depen
                         detail=response.json()['detail'])
 
 
-@router.get("/drivers/last_location/", status_code=status.HTTP_200_OK)
-def gat_drivers_last_location(useremail: EmailStr = Depends(get_current_useremail)):
-    url = url_base + "/drivers/last_location/" + useremail
+@router.get("/drivers/last_location/{driver}", status_code=status.HTTP_200_OK)
+def gat_drivers_last_location(driver: str, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/last_location/" + driver
     response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.delete("/drivers/last_location/", status_code=status.HTTP_200_OK)
+def delete_drivers_last_location(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + "/drivers/last_location/"
+    body = {"email": useremail}
+    response = requests.delete(url=url, json=body)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
