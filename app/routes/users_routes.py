@@ -38,7 +38,20 @@ def get_users():
 
 
 ###############################################################################################
+# USERS WALLETS
+@router.get("/users/{useremail}/wallet", status_code=status.HTTP_200_OK)
+def get_user_wallet(useremail: str):
+    url = url_base + "/users/" + useremail + "/wallet"
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+###############################################################################################
 # COMPLETE DATA
+
+
 @router.post("/passengers/address", status_code=status.HTTP_201_CREATED)
 def user_add_pred_address(user: PassengerAddress, useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + "/passengers/address"
