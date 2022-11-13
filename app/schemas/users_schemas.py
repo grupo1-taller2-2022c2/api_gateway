@@ -19,6 +19,14 @@ class UserSchema(BaseModel):
 
 
 #######################################################################
+
+class WalletWithdrawalSchema(BaseModel):
+    user_external_wallet_address: str
+    amount_in_ethers: str
+
+#######################################################################
+
+
 class PassengerAddress(BaseModel):
     street_name: str
     street_number: int

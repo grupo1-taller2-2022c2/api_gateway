@@ -48,6 +48,18 @@ def get_user_wallet(useremail: str):
     raise HTTPException(status_code=response.status_code,
                         detail=response.json()['detail'])
 
+
+@router.post("/users/{useremail}/wallet/withdrawals", status_code=status.HTTP_200_OK)
+def withdraw_funds_from_wallet(useremail: str, withdrawal_info: WalletWithdrawalSchema):
+    url = url_base + "/users/" + useremail + "/wallet/withdrawals"
+    body = {'user_external_wallet_address': withdrawal_info.user_external_wallet_address,
+            'amount_in_ethers': withdrawal_info.amount_in_ethers}
+    response = requests.post(url=url, json=body)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
 ###############################################################################################
 # COMPLETE DATA
 
