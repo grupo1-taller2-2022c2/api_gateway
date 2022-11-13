@@ -83,3 +83,14 @@ class DriverRating(BaseModel):
     trip_id: int
     ratings: int
     message: str
+
+
+#######################################################################
+class DriverReport(BaseModel):
+    driver_email: str
+    trip_id: int
+    reason: str
+
+
+class ReportDelete(BaseModel):
+    report_id: int

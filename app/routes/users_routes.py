@@ -233,3 +233,37 @@ def user_get_driver_rating(ratings_id: int):
         return response.json()
     raise HTTPException(status_code=response.status_code,
                         detail=response.json()['detail'])
+
+
+###############################################################################################
+# DRIVER REPORT
+@router.post("/drivers/reports", status_code=status.HTTP_201_CREATED)
+def report_driver(report: DriverReport, useremail: EmailStr = Depends(get_current_useremail)):
+    body = {"driver_email": report.driver_email, "passenger_email": useremail,
+            "trip_id": report.trip_id, "reason": report.reason}
+    url = url_base + "/drivers/reports"
+    response = requests.post(url=url, json=body)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.delete("/drivers/reports", status_code=status.HTTP_200_OK)
+def delete_report_with_report_id(report: ReportDelete):
+    url = url_base + "/drivers/reports"
+    response = requests.delete(url=url, json=dict(report))
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.get("/drivers/reports/all", status_code=status.HTTP_200_OK)
+def get_drivers_reports():
+    url = url_base + "/drivers/reports/all"
+    response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
