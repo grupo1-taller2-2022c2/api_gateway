@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 from starlette import status
 
 from app.routes.authorization_routes import get_current_useremail
-from app.schemas.trips_schemas import DriverLocationSchema, TripState, TripCreate, LocationCreate
+from app.schemas.trips_schemas import DriverLocationSchema, TripState, TripCreate, LocationCreate, ExpoToken
 from app.schemas.users_schemas import *
 
 router = APIRouter()
@@ -154,6 +154,27 @@ def get_passenger_saved_location(location_name: str, useremail: EmailStr = Depen
 def get_all_passenger_saved_location(useremail: EmailStr = Depends(get_current_useremail)):
     url = url_base + f"/trips/saved_location/{useremail}"
     response = requests.get(url=url)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.post("/notifications/token/", status_code=status.HTTP_201_CREATED)
+def save_expo_token(token: ExpoToken, useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + f"/notifications/token/"
+    body = {"email": useremail, "token": token.token}
+    response = requests.post(url=url, json=body)
+    if response.ok:
+        return response.json()
+    raise HTTPException(status_code=response.status_code,
+                        detail=response.json()['detail'])
+
+
+@router.delete("/notifications/token/", status_code=status.HTTP_202_ACCEPTED)
+def delete_expo_token(useremail: EmailStr = Depends(get_current_useremail)):
+    url = url_base + f"/notifications/token/" + useremail
+    response = requests.delete(url=url)
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,

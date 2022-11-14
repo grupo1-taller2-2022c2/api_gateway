@@ -27,3 +27,7 @@ class LocationCreate(BaseModel):
     location: str
     street_name: str
     street_num: int
+
+
+class ExpoToken(BaseModel):
+    token: str
