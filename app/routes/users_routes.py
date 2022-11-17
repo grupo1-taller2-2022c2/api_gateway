@@ -14,9 +14,10 @@ router = APIRouter()
 
 url_base = os.getenv('USERS_BASE_URL')
 
-
 ###############################################################################################
 # USERS
+
+
 @router.post("/users/signup", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 def user_signup(user: UserSignUp):
     url = url_base + "/users/signup"
