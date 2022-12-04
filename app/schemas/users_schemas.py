@@ -37,12 +37,14 @@ class PassengerSelfProfile(BaseModel):
     username: str
     surname: str
     ratings: float
+    photo: str
 
 
 class PassengerProfile(BaseModel):
     username: str
     surname: str
     ratings: float
+    photo: str
 
 
 #######################################################################
@@ -57,6 +59,7 @@ class DriverProfile(BaseModel):
     ratings: float
     licence_plate: str
     model: str
+    photo: str
 
 
 class DriverSelfProfile(BaseModel):
@@ -66,6 +69,7 @@ class DriverSelfProfile(BaseModel):
     ratings: float
     licence_plate: str
     model: str
+    photo: str
 
 
 #######################################################################
