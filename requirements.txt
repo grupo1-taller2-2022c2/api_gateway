@@ -9,6 +9,7 @@ fastapi==0.68.1
 firebase-admin==6.0.0
 gunicorn==20.1.0
 h11==0.12.0
+httpcore==0.15
 httptools==0.2.0
 idna==3.4
 passlib==1.7.4
