@@ -6,9 +6,12 @@ from typing import List
 import requests
 from fastapi.responses import RedirectResponse
 from starlette import status
-
+from firebase_admin import credentials, initialize_app, storage
 from app.routes.authorization_routes import get_current_useremail
 from app.schemas.users_schemas import *
+
+cred = credentials.Certificate("fiuber-365100-506dec4fe85f.json")
+initialize_app(cred, {'storageBucket': 'fiuber-365100.appspot.com'})
 
 router = APIRouter()
 
@@ -129,8 +132,13 @@ def update_passenger_profile(new_profile: PassengerProfile, useremail: EmailStr 
 
 @router.patch("/passengers/picture", status_code=status.HTTP_200_OK)
 def update_passenger_picture(photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
-    url = url_base + "/passengers/picture/" + useremail
-    response = requests.patch(url=url, data=photo)
+    filename = f"{useremail}.jpg"
+    bucket = storage.bucket()
+    blob = bucket.blob(filename)
+    blob.upload_from_string(photo, content_type='image/jpeg')
+    blob.make_public()
+    url = url_base + "/users/picture/" + useremail
+    response = requests.patch(url=url, json={"photo_url": blob.public_url})
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
@@ -171,8 +179,13 @@ def update_passenger_profile(new_profile: DriverProfile, useremail: EmailStr = D
 
 @router.patch("/drivers/picture", status_code=status.HTTP_200_OK)
 def update_passenger_picture(photo: bytes = File(default=None), useremail: EmailStr = Depends(get_current_useremail)):
-    url = url_base + "/drivers/picture/" + useremail
-    response = requests.patch(url=url, data=photo)
+    filename = f"{useremail}.jpg"
+    bucket = storage.bucket()
+    blob = bucket.blob(filename)
+    blob.upload_from_string(photo, content_type='image/jpeg')
+    blob.make_public()
+    url = url_base + "/users/picture/" + useremail
+    response = requests.patch(url=url, json={"photo_url": blob.public_url})
     if response.ok:
         return response.json()
     raise HTTPException(status_code=response.status_code,
