@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, initialize_app
 
-cred = credentials.Certificate("authServiceAccount.json")
-firebase_admin.initialize_app(cred, name="authorizationServiceAccount")
+auth_cred = credentials.Certificate("authServiceAccount.json")
+auth_app = initialize_app(auth_cred, name="authorizationServiceAccount")

@@ -11,12 +11,10 @@ from app.routes.authorization_routes import get_current_useremail
 from app.schemas.users_schemas import *
 import firebase_admin
 from firebase_admin import credentials, auth
+from app.config.firebase_config import auth_app
 
 cred = credentials.Certificate("fiuber-365100-506dec4fe85f.json")
 default_app = initialize_app(cred, {"storageBucket": "fiuber-365100.appspot.com"})
-
-auth_cred = credentials.Certificate("authServiceAccount.json")
-auth_app = initialize_app(auth_cred, name="authorizationServiceAccount")
 
 router = APIRouter()
 
@@ -60,7 +58,7 @@ def get_users():
 def google_user_signup_if_new(token: Union[str, None] = Header(default=None)):
     # Obtener el usuario a partir del token (y validarlo)
     decoded_token = auth.verify_id_token(token, app=auth_app)
-    print("The token from Google is" + decoded_token)
+    print("The token from Google is" + str(decoded_token))
     user = UserSignUp(
         email=decoded_token["email"],
         password="no_password_12738172461237086124876",
