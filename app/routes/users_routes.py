@@ -59,11 +59,14 @@ def google_user_signup_if_new(token: Union[str, None] = Header(default=None)):
     # Obtener el usuario a partir del token (y validarlo)
     decoded_token = auth.verify_id_token(token, app=auth_app)
     print("The token from Google is" + str(decoded_token))
+    full_name = str(decoded_token["name"]).split()
+    username = full_name[0]
+    surname = full_name[1] if len(full_name) > 1 else full_name[0]
     user = UserSignUp(
         email=decoded_token["email"],
         password="no_password_12738172461237086124876",
-        surname=decoded_token["name"],
-        username=decoded_token["name"],
+        surname=surname,
+        username=username,
     )
 
     return user_signup(user)
