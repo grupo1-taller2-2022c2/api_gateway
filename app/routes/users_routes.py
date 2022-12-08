@@ -7,11 +7,15 @@ import requests
 from fastapi.responses import RedirectResponse
 from starlette import status
 from firebase_admin import credentials, initialize_app, storage
-from app.routes.authorization_routes import get_current_useremail
+from app.routes.authorization_routes import (
+    get_current_useremail,
+    custom_credentials_exception,
+)
 from app.schemas.users_schemas import *
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, exceptions
 from app.config.firebase_config import auth_app
+from app.helpers.user_routes_helpers import send_login_notification_to_backoffice
 
 cred = credentials.Certificate("fiuber-365100-506dec4fe85f.json")
 default_app = initialize_app(cred, {"storageBucket": "fiuber-365100.appspot.com"})
@@ -49,27 +53,36 @@ def get_users():
 
 
 # Cada vez que el usuario se loguea con Google, se llama a esta funcion para ver si se tiene
-# que registrar o no (no podemos distinguir si es un nuevo usuario o no)
+# que registrar o no (no podemos distinguir si es un nuevo usuario o no). Devuelve el usuario
+# en cualquier caso
 @router.post(
     "/users/google_sign_up_if_new",
     # response_model=UserSchema,
     status_code=status.HTTP_201_CREATED,
 )
 def google_user_signup_if_new(token: Union[str, None] = Header(default=None)):
-    # Obtener el usuario a partir del token (y validarlo)
-    decoded_token = auth.verify_id_token(token, app=auth_app)
-    print("The token from Google is" + str(decoded_token))
-    full_name = str(decoded_token["name"]).split()
-    username = full_name[0]
-    surname = full_name[1] if len(full_name) > 1 else full_name[0]
-    user = UserSignUp(
-        email=decoded_token["email"],
-        password="no_password_12738172461237086124876",
-        surname=surname,
-        username=username,
-    )
+    try:
+        decoded_token = auth.verify_id_token(token, app=auth_app)
+        print("The token from Google is" + str(decoded_token))
+        full_name = str(decoded_token["name"]).split()
+        username = full_name[0]
+        surname = full_name[1] if len(full_name) > 1 else full_name[0]
+        user = UserSignUp(
+            email=decoded_token["email"],
+            password="no_password_12738172461237086124876",
+            surname=surname,
+            username=username,
+            type_signup="federatedidentity",
+        )
+        response_login_not = send_login_notification_to_backoffice("federatedidentity")
+        print(response_login_not)
 
-    return user_signup(user)
+        return user_signup(user)
+    except exceptions.FirebaseError as e:
+        print("Error while processing credentials: " + str(e))
+        raise custom_credentials_exception(
+            "Error while processing credentials: " + str(e)
+        )
 
 
 ###############################################################################################

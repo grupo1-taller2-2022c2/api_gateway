@@ -1,12 +1,12 @@
 from pydantic import BaseModel, EmailStr
 
-
 #######################################################################
 class UserSignUp(BaseModel):
     email: EmailStr
     password: str
     username: str
     surname: str
+    type_signup: str = "mailpassword"
 
 
 class UserSchema(BaseModel):
@@ -20,9 +20,11 @@ class UserSchema(BaseModel):
 
 #######################################################################
 
+
 class WalletWithdrawalSchema(BaseModel):
     user_external_wallet_address: str
     amount_in_ethers: str
+
 
 #######################################################################
 

@@ -68,8 +68,6 @@ def user_is_blocked(user_email: EmailStr):
 
 
 # form_data.username is the email of the user!
-
-
 @router.post("/token", status_code=status.HTTP_200_OK)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     url = url_base + "/users/grantaccess"
