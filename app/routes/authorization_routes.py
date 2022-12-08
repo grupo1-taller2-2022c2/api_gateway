@@ -28,8 +28,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def validate_google_signin_user(token):
-    # auth_app = firebase_admin.getApp(name="authorizationServiceAccount")
-    print("The google token is:" + token)
     decoded_token = auth.verify_id_token(token, app=auth_app)
     return decoded_token["email"]
 
@@ -42,28 +40,18 @@ def custom_credentials_exception(message):
     )
 
 
-def get_current_useremail(
-    token: str = Depends(oauth2_scheme),
-    is_google_token: Union[str, None] = Header(default=None),
-):
-    try:
-        if (
-            is_google_token and is_google_token == "true"
-        ):  # Se trata de un token de proveedor de identidad federada (Google)
-            useremail: EmailStr = validate_google_signin_user(token)
-        else:  # Se trata de un token nuestro de email password tradicional
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            useremail: EmailStr = payload.get("sub")
-        if useremail is None:
-            raise custom_credentials_exception("Could not validate credentials")
-    except auth.ExpiredIdTokenError:
-        raise custom_credentials_exception("ID token has expired")
-    except auth.InvalidIdTokenError:
-        raise custom_credentials_exception("ID token is malformed or invalid")
-    except exceptions.FirebaseError as ex:
-        raise custom_credentials_exception(f"Failed to verify ID token: {ex}")
+def get_current_useremail(token: str = Depends(oauth2_scheme)):
+    try:  # Tratamos de decodificar suponiendo que es un token nuestro de email password tradicional
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        useremail: EmailStr = payload.get("sub")
     except Exception:
-        raise custom_credentials_exception("Could not validate credentials")
+        # Si no funcionó, tratamos de decodificar suponiendo que es un token de proveedor de identidad federada (Google)
+        try:
+            useremail: EmailStr = validate_google_signin_user(token)
+            if useremail is None:
+                raise custom_credentials_exception("Could not validate credentials")
+        except Exception:
+            raise custom_credentials_exception("Could not validate credentials")
 
     if user_is_blocked(useremail):
         raise HTTPException(
