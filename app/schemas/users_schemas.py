@@ -13,6 +13,7 @@ class UserSchema(BaseModel):
     email: EmailStr
     username: str
     surname: str
+    blocked: str
 
     class Config:
         orm_mode = True
