@@ -1,4 +1,7 @@
+from typing import Union
+
 from pydantic import BaseModel, EmailStr
+
 
 #######################################################################
 class UserSignUp(BaseModel):
@@ -14,6 +17,24 @@ class UserSchema(BaseModel):
     username: str
     surname: str
     blocked: str
+
+    class Config:
+        orm_mode = True
+
+
+class DriverInfo(BaseModel):
+    rating: float
+    licence_plate: str
+    model: str
+
+
+class UserFullInfo(BaseModel):
+    email: EmailStr
+    username: str
+    surname: str
+    blocked: bool
+    ratings: float
+    driver: Union[DriverInfo, None]
 
     class Config:
         orm_mode = True
