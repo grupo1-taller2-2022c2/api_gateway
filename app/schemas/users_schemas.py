@@ -23,7 +23,7 @@ class UserSchema(BaseModel):
 
 
 class DriverInfo(BaseModel):
-    rating: float
+    ratings: float
     licence_plate: str
     model: str
 
