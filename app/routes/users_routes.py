@@ -198,12 +198,13 @@ def update_passenger_profile(
     )
 
 
-@router.patch("/passengers/picture", status_code=status.HTTP_200_OK)
+@router.post("/passengers/picture", status_code=status.HTTP_200_OK)
 def update_passenger_picture(
     photo: bytes = File(default=None),
     useremail: EmailStr = Depends(get_current_useremail),
 ):
-    filename = f"{useremail}.jpg"
+    filename = "arroba".join(useremail.split("@"))
+    filename = f"{filename}.jpg"
     bucket = storage.bucket()
     blob = bucket.blob(filename)
     blob.upload_from_string(photo, content_type="image/jpeg")
@@ -258,12 +259,13 @@ def update_passenger_profile(
     )
 
 
-@router.patch("/drivers/picture", status_code=status.HTTP_200_OK)
-def update_passenger_picture(
+@router.post("/drivers/picture", status_code=status.HTTP_200_OK)
+def update_driver_picture(
     photo: bytes = File(default=None),
     useremail: EmailStr = Depends(get_current_useremail),
 ):
-    filename = f"{useremail}.jpg"
+    filename = "arroba".join(useremail.split("@"))
+    filename = f"{filename}.jpg"
     bucket = storage.bucket()
     blob = bucket.blob(filename)
     blob.upload_from_string(photo, content_type="image/jpeg")
